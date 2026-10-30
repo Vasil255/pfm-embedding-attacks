@@ -1,0 +1,16 @@
+# Outputs (checkpoints, attack results)
+results/
+
+# Patch embeddings are not distributed with the repository
+data/AI4SKIN/embeddings/*
+!data/AI4SKIN/embeddings/.gitkeep
+
+*.pth
+*.npy
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
