@@ -31,8 +31,6 @@ Computational pathology pipelines encode image patches with pathology foundation
   - [Command-Line Arguments](#command-line-arguments)
   - [Example Usage](#example-usage)
 - [Output Structure](#output-structure)
-- [Relation to the Paper](#relation-to-the-paper)
-- [Reproducibility](#reproducibility)
 
 ---
 
@@ -104,14 +102,10 @@ pip install -r requirements.txt
 ### Option B: Conda
 
 ```bash
-git clone https://github.com/Vasil255/pfm-embedding-attacks.git
-cd pfm-embedding-attacks
 conda create --name pfm-attacks python=3.10 -y
 conda activate pfm-attacks
 pip install -r requirements.txt
 ```
-
-> **Note:** If the default PyTorch wheel does not match your CUDA version, install PyTorch first following [pytorch.org](https://pytorch.org/get-started/locally/), then run `pip install -r requirements.txt`.
 
 ---
 
@@ -200,8 +194,6 @@ Default paths are relative to the repository, so both scripts can be run from an
 python train.py --pfm CONCH
 ```
 
-This trains for 20 epochs with a batch of one WSI, using a cross-entropy loss weighted by inverse class frequencies, AdamW and cosine annealing. The weights of the epoch with the lowest validation loss are kept.
-
 **Attack the test set over the full grid of the paper:**
 ```bash
 python attack.py --pfm CONCH
@@ -226,20 +218,20 @@ done
 
 ## Output Structure
 
-All outputs are saved under `--output_dir` (default: `results/`):
+All outputs are saved under `--output_dir` (default: `results/`), with one folder and one CSV per PFM and aggregator (e.g. `CONCH_ABMIL`):
 
 ```
 results/
 ├── models/
-│   └── CONCH_ABMIL/
-│       ├── model.pth            # Weights of the epoch with the lowest validation loss
-│       ├── history.csv          # Training and validation loss/accuracy per epoch
-│       └── metrics.csv          # Validation and test metrics of the selected checkpoint
+│   └── <PFM>_<aggregator>/
+│       ├── model.pth              # Weights of the epoch with the lowest validation loss
+│       ├── history.csv            # Training and validation loss/accuracy per epoch
+│       └── metrics.csv            # Validation and test metrics of the selected checkpoint
 └── attacks/
-    └── CONCH_ABMIL.csv          # One row per (attack, ε, ρ), plus the clean baseline
+    └── <PFM>_<aggregator>.csv     # One row per (attack, ε, ρ), plus the clean baseline
 ```
 
-Each attack CSV has one row for the clean baseline (`Attack = None`) and one row per attack, ε and ρ. Metrics are stored as fractions, not percentages:
+Columns of each attack CSV (metrics are stored as fractions):
 
 | Column | Contents |
 |--------|----------|
@@ -250,27 +242,3 @@ Each attack CSV has one row for the clean baseline (`Attack = None`) and one row
 | `ASR` | Fraction of correctly classified WSIs whose prediction the attack changes |
 | `L2_Dist`, `Cos_Sim`, `Feat_Diff` | Distortion of the targeted embeddings |
 | `Time_s` | Running time of the configuration, in seconds |
-
----
-
-## Relation to the Paper
-
-All the results of the paper come from the attack CSVs:
-
-- **Table 1**: clean BACC (`Attack = None`) and the attacked BACC averaged over all (ε, ρ) pairs, per attack. The paper reports BACC in percent, rounded to two decimals. Each drop is the difference between the rounded baseline and attacked values, and the averages quoted in Sec. 4.1 are averages of the Table 1 cells.
-- **Table 2**: `L2_Dist`, `Cos_Sim` and `Feat_Diff` at ε = 0.5, averaged over ρ and over RFGSM and PGD.
-- **Fig. 2**: BACC averaged over the six PFMs, (a) as a function of ε at ρ = 0.5 and (b) as a function of ρ at ε = 0.15.
-
----
-
-## Reproducibility
-
-All runs use seed 42 and deterministic cuDNN. For each test WSI and ratio ρ, the selected patches and the random start of the attacks depend only on the WSI and ρ, so every budget and attack perturbs the same patches. On our setup, repeated runs give identical checkpoints and attack results. Other GPUs or library versions may give slightly different numbers.
-
-On a single NVIDIA TITAN Xp (12 GB), training both aggregators on CONCH takes about 5 minutes. The full attack grid takes about one minute per PFM for ABMIL, and 11 to 19 minutes per PFM for TransMIL.
-
----
-
-## Acknowledgments
-
-This work was supported by the Spanish Ministry of Economy and Competitiveness through ASSIST (PID2022-140189OB-C21) and the Generalitat Valenciana (GVA) through PROMETEO (CIPROM/2022/20). The ABMIL and TransMIL implementations are adapted from [MIL_BASELINE](https://github.com/lingxitong/MIL_BASELINE), and the attacks from [TorchAttacks](https://github.com/Harry24k/adversarial-attacks-pytorch).
