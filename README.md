@@ -113,7 +113,7 @@ We use a six-class subset of the public AI4SkIN dataset of cutaneous spindle cel
 
 ### Embeddings
 
-Patch extraction and feature encoding are not part of this repository. Each WSI must be stored as a float32 array of shape `[N, d]`, one row per patch, in a folder named after the PFM:
+Patch extraction and feature encoding are not part of this repository. In the paper, each WSI is tiled into non-overlapping 512 × 512 pixel patches at 10× magnification, and every patch is encoded with each PFM. Each WSI must be stored as a float32 array of shape `[N, d]`, one row per patch, in a folder named after the PFM:
 
 ```
 data/AI4SKIN/embeddings/
