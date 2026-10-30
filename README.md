@@ -21,7 +21,6 @@ Computational pathology pipelines encode image patches with pathology foundation
 
 ## Table of Contents
 
-- [Method](#method)
 - [Repository Structure](#repository-structure)
 - [Setup](#setup)
   - [Docker (Recommended)](#option-a-docker-recommended)
@@ -31,20 +30,6 @@ Computational pathology pipelines encode image patches with pathology foundation
   - [Command-Line Arguments](#command-line-arguments)
   - [Example Usage](#example-usage)
 - [Output Structure](#output-structure)
-
----
-
-## Method
-
-- Every patch embedding is L2-normalized, and so is the slide representation produced by the aggregator.
-- For each WSI with N patches, M = max(1, ⌊ρN⌋) patch embeddings are selected at random.
-- Each selected embedding receives a perturbation with ‖δᵢ‖₂ ≤ ε and is then renormalized onto the unit hypersphere. Because all embeddings have unit norm, the same ε means the same displacement for every PFM, whatever its dimension.
-- The attacks maximize the slide-level cross-entropy of the true label through the frozen aggregator and classifier. The update direction is the sign of the gradient, rescaled to unit L2 norm.
-  - **RFGSM**: random start within the ball of radius 0.5ε, then a single step that spends the remaining budget.
-  - **PGD**: random start within the ball of radius ε, then T = 10 steps of length 2.5ε/T, each projected onto the L2 ball and renormalized.
-- **Random** (control): uniform noise within the L2 ball of radius ε, applied to the same patches.
-
-The attacks are implemented in [`src/attacks.py`](src/attacks.py).
 
 ---
 
@@ -75,7 +60,7 @@ pfm-embedding-attacks/
 
 ### Option A: Docker (Recommended)
 
-We provide a Docker-based workflow using the NVIDIA PyTorch container, which bundles PyTorch, CUDA and most of the dependencies. All the results of the paper were obtained with this container.
+We provide a Docker-based workflow using the NVIDIA PyTorch container, which bundles all major dependencies (PyTorch, torchvision, CUDA).
 
 1. **Pull and run the container**, mounting the repository and the folder with the embeddings:
 
